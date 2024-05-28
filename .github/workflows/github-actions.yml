@@ -1,10 +1,14 @@
-name: CI
+name: CI/CD
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
 
 
 jobs:
-  build:
+  # Job 1: check coding style
+  check_coding_style:
     runs-on: ubuntu-latest
     container: python:3.10
     steps:
@@ -35,3 +39,57 @@ jobs:
     #     run: |
     #       python --version
     #       pytest tests/ --ignore=tests/test_chat_provider.py 
+
+
+  # Job 2: build and test
+  build_and_test:
+    needs: check_coding_style
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        # Use the "checkout" action to copy code from the repository to the Ubuntu virtual machine
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+            # Use the "docker/login-action" action to log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and test
+        # Build and test the Docker image
+        run: |
+          docker build -t topic-modeling .
+
+      - name: Push image to Docker Hub
+        uses: docker/build-push-action@v2
+        # Use the "docker/build-push-action" action to push the image to Docker Hub
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/topic-modeling:${{ github.sha }}
+
+  # deploy:
+  #   needs: build_and_test
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Deploy to server
+  #       # Use the "appleboy/ssh-action" action to deploy the image to the server via SSH
+  #       uses: appleboy/ssh-action@v0.1.3
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USER }}
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           # Pull the image that was pushed to DockerHub above
+  #           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/topic-modeling:${{ github.sha }}
+
+  #           # Stop and remove the current container (if any)
+  #           docker stop topic-modeling
+  #           docker rm topic-modeling
+
+  #           # Run a new container with the pulled image above
+  #           docker run -d -p 80:3000 --name topic-modeling ${{ secrets.DOCKERHUB_USERNAME }}/topic-modeling:${{ github.sha }}

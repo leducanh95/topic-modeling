@@ -1,8 +1,9 @@
 import pandas as pd
-from config.constants import DATA_FILE
 from document_embedder import DocumentEmbedder
 from document_retriever import DataRetriever
 from utils.logger import get_logger
+
+from root import DATA_FILE
 
 logger = get_logger(name="main_pipeline")
 

@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Union
 
-from config.constants import LOG_DIR
+from root import LOG_DIR
 
 LOG_FORMAT = logging.Formatter(
     fmt="Log entry for %(name)s: %(asctime)s %(levelname)s %(filename)s %(module)s - %(funcName)s(%(lineno)d): %(message)s",  # noqa E501
