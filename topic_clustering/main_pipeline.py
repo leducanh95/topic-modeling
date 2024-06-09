@@ -1,33 +1,34 @@
 import pandas as pd
-from document_embedder import DocumentEmbedder
-from document_retriever import DataRetriever
-from utils.logger import get_logger
 
-from root import DATA_FILE
+from topic_clustering.document_clusterer import DocumentClusterer
+from topic_clustering.document_embedder import DocumentEmbedder
+from topic_clustering.document_retriever import DataRetriever
+from topic_clustering.utils.load_config import load_config
+from topic_clustering.utils.logger import get_logger
 
 logger = get_logger(name="main_pipeline")
 
 
-def main_pipeline() -> pd.DataFrame:
+def main_pipeline(config_file: str) -> pd.DataFrame:
     """
-    This function represents the main pipeline for the topic clustering process.
+    Runs the main pipeline for topic clustering.
 
-    It retrieves data, performs document embedding, and returns the processed dataframe.
+    Args:
+        config_file (str): The path to the configuration file.
 
     Returns:
-        pd.DataFrame: The processed dataframe with headline embeddings.
+        pd.DataFrame: The clustered documents.
     """
-    retriever = DataRetriever(
-        data_file=DATA_FILE,
-        frac=0.1,
-    )
+    config = load_config(config_file)
+    retriever = DataRetriever(config=config)
     df = retriever.get_data()
 
-    embedder = DocumentEmbedder()
-    df["headline_embeddings"] = embedder.get_embedding(df["headline_text"].tolist())
-    print(df.head(5))
-    return df
+    embedder = DocumentEmbedder(config=config)
+    df_embeddings = embedder.run(df=df)
+    logger.info("Document embeddings have been successfully created.")
 
+    clusterer = DocumentClusterer(config=config)
+    df_clustering = clusterer.run(df_embeddings)
+    logger.info("Documents have been successfully clustered.")
 
-if __name__ == "__main__":
-    main_pipeline()
+    return df_clustering

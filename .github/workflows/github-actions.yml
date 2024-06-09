@@ -27,7 +27,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Check with isort
-        run: isort . --check-only
+        run: isort . --check-only --profile black
 
       - name: Check with black
         run: black --check .

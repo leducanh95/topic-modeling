@@ -1,7 +1,8 @@
 import os
 
 import pandas as pd
-from utils.logger import get_logger
+
+from topic_clustering.utils.logger import get_logger
 
 logger = get_logger(name="document_retriever")
 
@@ -9,13 +10,7 @@ logger = get_logger(name="document_retriever")
 class DataRetriever:
     """This class retrieves and preprocesses data from a specified file."""
 
-    def __init__(
-        self,
-        data_file: str,
-        frac: float = None,
-        min_date: str = None,
-        max_date: str = None,
-    ):
+    def __init__(self, config: dict):
         """
         Initialize the DataRetriever class.
 
@@ -28,10 +23,14 @@ class DataRetriever:
             max_date (str, optional): The maximum date to filter the data. \
                 Defaults to None.
         """
-        self.data_file = data_file
-        self.frac = frac
-        self.min_date = min_date
-        self.max_date = max_date
+        input_info = config.get("input_info")
+        input_dir = input_info.get("input_dir", None)
+        self.data_file = os.path.join(
+            input_dir, input_info.get("raw_data_filename", None)
+        )
+        self.frac = input_info.get("frac", None)
+        self.min_date = input_info.get("min_date", None)
+        self.max_date = input_info.get("max_date", None)
 
     def get_data(self) -> pd.DataFrame:
         """
@@ -56,4 +55,5 @@ class DataRetriever:
             logger.info(
                 f"Data loaded successfully. From {self.min_date} to {self.max_date} and sampled by {self.frac}"  # noqa E501
             )
+            logger.info(f"Data shape: {df.shape}")
         return df

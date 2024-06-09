@@ -1,0 +1,18 @@
+{
+    "input_info":{
+        "input_dir": "data/01_input",
+        "raw_data_filename": "abcnews-date-text.csv",
+        "frac": 0.01,
+        "min_date": null,
+        "max_date": null,
+        "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+        "cluster_method": "kmeans"
+    },
+    "output_info":
+    {
+        "output_dir": "data/02_output",
+        "processed_filename": "processed_example.csv",
+        "clustered_filename": "clustered_example.csv",
+        "report_path": null
+    }
+}
