@@ -160,7 +160,12 @@ cython_debug/
 #.idea/
 
 data/*
-!data/.gitkeep
+# data/01_input/*
+!data/01_input/
+# data/02_output/*
+!data/02_output/
+
 notebooks/*
 !notebooks/.gitkeep
 *.DS_Store
+*.csv
