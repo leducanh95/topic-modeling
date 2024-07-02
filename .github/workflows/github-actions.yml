@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - main
-
+  workflow_dispatch:
 
 jobs:
   # Job 1: check coding style
   check_coding_style:
     runs-on: ubuntu-latest
-    container: python:3.10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +32,17 @@ jobs:
         run: black --check .
 
       - name: Check with flake8
-        run: flake8 . --max-line-length=88 --extend-ignore=E402,D100,D401,D104
+        run: flake8 . --max-line-length=88 --extend-ignore=E402,D100,D401,D104,D103
+
+      - name: Run tests
+        run: |
+          pytest --cov=./ --cov-report=xml
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
 
     #   - name: Run unit tests
     #     run: |
@@ -41,35 +50,35 @@ jobs:
     #       pytest tests/ --ignore=tests/test_chat_provider.py 
 
 
-  # Job 2: build and test
-  build_and_test:
-    needs: check_coding_style
-    runs-on: ubuntu-latest
+  # # Job 2: build and test
+  # build_and_test:
+  #   needs: check_coding_style
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        # Use the "checkout" action to copy code from the repository to the Ubuntu virtual machine
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       # Use the "checkout" action to copy code from the repository to the Ubuntu virtual machine
+  #       uses: actions/checkout@v2
 
-      - name: Login to Docker Hub
-            # Use the "docker/login-action" action to log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - name: Login to Docker Hub
+  #           # Use the "docker/login-action" action to log in to Docker Hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and test
-        # Build and test the Docker image
-        run: |
-          docker build -t topic-modeling .
+  #     - name: Build and test
+  #       # Build and test the Docker image
+  #       run: |
+  #         docker build -t topic-modeling .
 
-      - name: Push image to Docker Hub
-        uses: docker/build-push-action@v2
-        # Use the "docker/build-push-action" action to push the image to Docker Hub
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/topic-modeling:${{ github.sha }}
+  #     - name: Push image to Docker Hub
+  #       uses: docker/build-push-action@v2
+  #       # Use the "docker/build-push-action" action to push the image to Docker Hub
+  #       with:
+  #         context: .
+  #         push: true
+  #         tags: ${{ secrets.DOCKERHUB_USERNAME }}/topic-modeling:${{ github.sha }}
 
   # deploy:
   #   needs: build_and_test

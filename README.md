@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/leducanh95/topic-modeling/graph/badge.svg?token=KUKQ1UGPTT)](https://codecov.io/gh/leducanh95/topic-modeling)
+
 # Topic Modeling
 Clustering news headlines into groups. Topic modeling and document clustering are techniques used to manipulate and search collections of text for information retrieval and potential knowledge discovery.
 
@@ -32,6 +34,10 @@ Download data from the link above, save date to folder `data/01_input`. Change p
 python main.py
 ```
 
+## Text
+```bash
+pytest --cov=./ --cov-report=xml
+```
 
 <!-- ## Build docker
 
