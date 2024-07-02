@@ -34,7 +34,12 @@ jobs:
 
       - name: Check with flake8
         run: flake8 . --max-line-length=88 --extend-ignore=E402,D100,D401,D104
-
+      
+      - name: Get Cover 
+        uses: orgoro/coverage@v3.1
+        with:
+            coverageFile: path/to/coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
     #   - name: Run unit tests
     #     run: |
     #       python --version
